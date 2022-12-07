@@ -102,3 +102,66 @@ dist
 
 # TernJS port file
 .tern-port
+
+dist/*
+
+www/*/__pycache__/
+binaries/db-mysql/*
+binaries/db-mongo/*
+binaries/db-redis/*
+binaries/lang-java/*
+binaries/lang-net/*
+binaries/lang-perl/*
+binaries/lang-php/*
+binaries/lang-node/*
+binaries/lang-python/*
+binaries/lang-python3/*
+binaries/lang-ruby/*
+binaries/server-httpd/*
+binaries/server-mongoose/*
+binaries/server-nginx/*
+binaries/server-putty/*
+binaries/server-tomcat/*
+binaries/db-mysql/*/*
+binaries/db-mongo/*/*
+binaries/db-redis/*/*
+binaries/lang-java/*/*
+binaries/lang-net/*/*
+binaries/lang-perl/*/*
+binaries/lang-php/*/*
+binaries/lang-node/*/*
+binaries/lang-python/*/*
+binaries/lang-python3/*/*
+binaries/lang-ruby/*/*
+binaries/server-httpd/*/*
+binaries/server-mongoose/*/*
+binaries/server-nginx/*/*
+binaries/server-putty/*/*
+binaries/server-tomcat/*/*
+*/*/__pycache__/
+
+tmp/*
+cache/*
+data/app/*
+data/crash/*
+data/data/*
+data/logs/*
+data/recent/*
+data/user/*
+
+
+# Dockerfile
+# Dockerfile.dev
+docker-compose.yaml
+
+./github/desktop-cgi/docker-readme-file.txt
+# https://stackoverflow.com/questions/36327862/bitbucket-create-repository-and-sub-modules
+
+# www/deda-service-manager
+
+# quickcheck files
+server/processes/xc.js
+
+release-builds/
+.gitpod.yml
+

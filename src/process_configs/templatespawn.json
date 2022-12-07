@@ -1,0 +1,23 @@
+{
+    "name": "processthread",
+    "type": "file",
+    "os": "",
+    "exe": "",
+    "cmds": {
+        "run": { "exe": "", "usage": "", "args": [] }
+    },
+    "options": {
+        "stdio": "inherit",
+        "shell": true
+    },
+    "other": {
+        "paths": {
+            "conf": "",
+            "exe": ""
+        },
+        "env": "",
+        "setprocess": true,
+        "executetype": "spawn",
+        "command": "run"
+    }
+}

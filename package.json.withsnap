@@ -4,6 +4,9 @@
   "description": "Desktop-CGI is a desktop executable app that can be created from any CGI files or CGI web apps that can be served from an file, an embedded web server using proxy, or an remote proxy web server. It supports embedding and managing embeddable databases and executables. It supports all major Operating systems like Windows, Linux, and MacOS supported by Electron.",
   "author": "Ganesh B",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "build": {
     "appId": "com.example.${name}",
     "asar": true,
@@ -51,6 +54,11 @@
             "ia32",
             "armv7l",
             "arm64"
+          ],
+          "depends": [
+            "libnotify4",
+            "libxtst6",
+            "libnss3"
           ]
         },
         {
@@ -81,6 +89,19 @@
         },
         {
           "target": "appImage",
+          "arch": [
+            "x64",
+            "ia32",
+            "armv7l",
+            "arm64",
+            "x64",
+            "ia32",
+            "armv7l",
+            "arm64"
+          ]
+        },
+        {
+          "target": "snap",
           "arch": [
             "x64",
             "ia32",
@@ -324,81 +345,14 @@
       ]
     }
   },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-zip",
-          "config": {
-            "name": "DesktopCGI"
-          },
-          "platforms": [
-            "darwin",
-            "mas",
-            "win32",
-            "linux"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-appx",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "options": {
-              "maintainer": "DesktopCGI",
-              "homepage": "https://desktop-cgi.github.com"
-            }
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {
-            "options": {
-              "maintainer": "DesktopCGI",
-              "homepage": "https://desktop-cgi.github.com"
-            }
-          }
-        },
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-wix",
-          "config": {
-            "language": 1033,
-            "manufacturer": "DesktopCGI"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-pkg",
-          "config": {}
-        }
-      ],
-      "electronRebuildConfig": {},
-      "publishers": [],
-      "plugins": [],
-      "hooks": {},
-      "buildIdentifier": "DesktopCGI"
-    }
-  },
   "scripts": {
     "setup-dev": "",
-    "postinstall": "electron-builder install-app-deps",
     "setup-expressbridge": "cd ./server/express-bridge && npm install && npm link",
     "test": "mocha --reporter spec --recursive --config ./mocha.test.config.js",
     "electron": "electron --trace-warnings .",
     "electronbuilder": "electron-builder build -mwl",
     "electronbuilder-deps": "electron-builder install-app-deps",
-    "electronbuilder-wincert": "electron-builder create-self-signed-cert",
-    "package-mac": "electron-packager . desktopcgi-demo --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --out=release-builds",
-    "package-win": "electron-packager . desktopcgi-demo --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Desktop-CGI Demo App\"",
-    "package-linux": "electron-packager . desktopcgi-demo --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --out=release-builds",
-    "package-all": "electron-packager . desktopcgi-demo --overwrite --asar --all --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds",
-    "package": "electron-packager . desktopcgi-demo --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
+    "electronbuilder-wincert": "electron-builder create-self-signed-cert"
   },
   "dependencies": {
     "cgijs": "^1.1.0",
@@ -417,30 +371,25 @@
     "electron-builder-squirrel-windows": "^23.5.1",
     "electron-forge": "^5.2.4",
     "electron-installer-debian": "^3.1.0",
-    "electron-installer-dmg": "^4.0.0",
     "electron-installer-flatpak": "^0.8.0",
     "electron-installer-redhat": "^3.3.0",
-    "electron-installer-snap": "^5.2.0",
+    "electron-installer-snap": "^5.1.0",
     "electron-installer-windows": "^3.0.0",
     "electron-installer-zip": "^0.1.2",
-    "electron-notifications": "^1.0.0",
     "electron-packager": "^15.4.0",
     "electron-packager-interactive": "^0.1.3",
     "electron-packager-languages": "^0.5.0",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
-    "electron-prebuilt": "^1.4.13",
-    "electron-prebuilt-compile": "^8.2.0",
     "electron-rebuild": "^3.2.9",
-    "electron-unhandled": "^4.0.1",
     "electron-windows-store": "^2.1.0",
     "electron-winstaller": "^5.0.0",
     "electron-wix-msi": "^4.0.0",
     "eslint": "8.11.0",
-    "grunt-electron": "^12.0.0",
     "mocha": "9.2.2",
     "sinon": "13.0.1",
     "supertest": "6.2.2",
-    "unimported": "^1.22.0"
+    "electron-notifications": "^1.0.0",
+    "electron-unhandled": "^4.0.1"
   },
   "repository": {
     "type": "git",
