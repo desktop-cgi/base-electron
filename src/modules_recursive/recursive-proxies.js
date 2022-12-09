@@ -7,7 +7,7 @@ let cUtils = cgijs.utils();
 // Basic Docs
 // https://www.npmjs.com/package/http-proxy
 
-module.exports = (dirname,  configurations, options, data={}) => {
+module.exports = (dirname, configurations, options, data = {}) => {
     let pr = new Promise(function (resolve, reject) {
 
         console.log("DesktopCGI-Express Bridge: recursive-proxies.js: Starting Proxies ");
@@ -20,7 +20,7 @@ module.exports = (dirname,  configurations, options, data={}) => {
 
         try {
             for (let i = 0; i < confLen; i++) {
-                
+
                 let proxyType = configs[configKeys[i]].type;
                 if (proxyType === "http" || proxyType === "https" || proxyType === "web") {
                     app.push({
@@ -42,7 +42,7 @@ module.exports = (dirname,  configurations, options, data={}) => {
 
                 }
             }
-            
+
             console.log("Desktop-CGI-Express Bridge: recursive-proxies.js: Starting proxy recursive ");
             resolve(app);
         } catch (e) {

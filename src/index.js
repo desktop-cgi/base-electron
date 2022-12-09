@@ -17,7 +17,6 @@ module.exports = (dirname, configurations, options) => {
             let stores = {};
 
             processes(dirname, configurations, options).then(function (procs) {
-
                 console.log("DesktopCGI-Express Bridge: index.js: Started Processes ");
                 console.log("DesktopCGI-Express Bridge: index.js: Starting Proxies");
 
