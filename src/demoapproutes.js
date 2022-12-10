@@ -17,10 +17,10 @@ module.exports = (dirname, configurations, options) => {
             let app = express();
 
             if (!!configurations.app.options.assets) {
-                app.use('/assets', express.static(path.join(dirname, configurations.app.options.assets)))
+                app.use('/assets', express.static(path.join(configurations.app.basePath, configurations.app.options.assets)))
             }
             if (!!configurations.app.options.views) {
-                app.set('views', path.join(dirname, configurations.app.options.views));
+                app.set('views', path.join(configurations.app.basePath, configurations.app.options.views));
             }
             if (!!configurations.app.options.viewengine) {
                 app.set('view engine', configurations.app.options.viewengine);

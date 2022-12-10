@@ -16,83 +16,161 @@ module.exports = (dirname, configurations, options) => {
             const processes = require("./modules_recursive/recursive-processes");
             let stores = {};
 
-            processes(dirname, configurations, options).then(function (procs) {
-                console.log("DesktopCGI-Express Bridge: index.js: Started Processes ");
-                console.log("DesktopCGI-Express Bridge: index.js: Starting Proxies");
+            // processes(dirname, configurations, options).then(function (procs) {
+            //     console.log("DesktopCGI-Express Bridge: index.js: Started Processes ");
+            //     console.log("DesktopCGI-Express Bridge: index.js: Starting Proxies");
 
-                stores["processes"] = procs;
+            //     stores["processes"] = procs;
 
-                proxies(dirname, configurations, options).then(function (proxyapp) {
+            // }).catch(function (e) {
+            //     // throw new Error(e.toString());
+            //     console.log("Desktop-CGI-Express Bridge: index.js: ", e.toString());
+            //     reject(e);
+            // });
 
-                    console.log("DesktopCGI-Express Bridge: index.js: Started Proxies");
+            // proxies(dirname, configurations, options).then(function (proxyapp) {
 
-                    stores["proxies"] = proxyapp;
+            //     console.log("DesktopCGI-Express Bridge: index.js: Started Proxies");
 
-                    if (!!configurations.app.options.assets) {
-                        app.use('/assets', express.static(path.join(dirname, configurations.app.options.assets)))
-                    }
-                    if (!!configurations.app.options.views) {
-                        app.set('views', path.join(dirname, configurations.app.options.views));
-                    }
-                    if (!!configurations.app.options.viewengine) {
-                        app.set('view engine', configurations.app.options.viewengine);
-                    }
+            //     stores["proxies"] = proxyapp;
 
-                    for (let i = 0; i < proxyapp.length; i++) {
-                        // Check this again for use / all / specific method
-                        app.use("/" + proxyapp[i].key, proxyapp[i].value);
-                    }
+            //     if (!!configurations.app.options.assets) {
+            //         app.use('/assets', express.static(path.join(dirname, configurations.app.options.assets)))
+            //     }
+            //     if (!!configurations.app.options.views) {
+            //         app.set('views', path.join(dirname, configurations.app.options.views));
+            //     }
+            //     if (!!configurations.app.options.viewengine) {
+            //         app.set('view engine', configurations.app.options.viewengine);
+            //     }
 
-                    console.log("DesktopCGI-Express Bridge: index.js: Starting CGI Files Routes");
+            //     for (let i = 0; i < proxyapp.length; i++) {
+            //         // Check this again for use / all / specific method
+            //         app.use("/" + proxyapp[i].key, proxyapp[i].value);
+            //     }
 
-                    cgifiles(dirname, configurations, options).then(async function (cgifilesapp) {
+            //     console.log("DesktopCGI-Express Bridge: index.js: Starting CGI Files Routes");
 
-                        console.log("DesktopCGI-Express Bridge: index.js: Started CGI Files Routes");
+            // }.bind(app), function (err) {
+            //     // throw new Error(err.toString());
+            //     console.log("Desktop-CGI-Express Bridge: index.js: ", err.toString());
+            //     reject(err);
+            // }).catch(function (error) {
+            //     // throw new Error(error.toString());
+            //     console.log("Desktop-CGI-Express Bridge: index.js: ", error.toString());
+            //     reject(error);
+            // });
 
-                        stores["cgifiles"] = cgifilesapp;
+            cgifiles(dirname, configurations, options).then(async function (cgifilesapp) {
 
-                        // Check this again for use / all / specific method
-                        app.use("/cgi", cgifilesapp);
+                console.log("DesktopCGI-Express Bridge: index.js: Started CGI Files Routes");
 
-                        if (configurations.server.app === "demo") {
-                            let demoapp = await require("./demoapproutes")(dirname, configurations);
-                            app.use("/", demoapp);
-                        } else {
-                            app.get("/", function (req, res, next) {
-                                res.redirect(configurations.server.redirect_home);
-                            });
-                        }
+                stores["cgifiles"] = cgifilesapp;
 
-                        app.all("*", function (req, res, next) {
-                            res.send("Desktop-CGI-Express Bridge: " + req.path + " - /* path: Testing my server");
-                        });
+                // Check this again for use / all / specific method
+                app.use("/cgi", cgifilesapp);
 
-                        app.listen(configurations.server.port, configurations.server.host, function () {
-                            console.log(`Desktop-CGI-Express Bridge: index.js: Server listening at ` + configurations.server.port);
-                            resolve({ app: app, stores: stores });
-                        }.bind(app));
-
-                    }.bind(app)).catch(function (error) {
-                        // throw new Error(error.toString());
-                        console.log("Desktop-CGI-Express Bridge: index.js: Error - ", error.toString());
-                        reject({ err: err });
+                if (configurations.server.app === "demo") {
+                    let demoapp = await require("./demoapproutes")(dirname, configurations);
+                    app.use("/", demoapp);
+                } else {
+                    app.get("/", function (req, res, next) {
+                        res.redirect(configurations.server.redirect_home);
                     });
+                }
 
-                }.bind(app), function (err) {
-                    // throw new Error(err.toString());
-                    console.log("Desktop-CGI-Express Bridge: index.js: ", err.toString());
-                    reject(err);
-                }).catch(function (error) {
-                    // throw new Error(error.toString());
-                    console.log("Desktop-CGI-Express Bridge: index.js: ", error.toString());
-                    reject(error);
+                app.all("*", function (req, res, next) {
+                    res.send("Desktop-CGI-Express Bridge: " + req.path + " - /* path: Testing my server");
                 });
 
-            }).catch(function (e) {
-                // throw new Error(e.toString());
-                console.log("Desktop-CGI-Express Bridge: index.js: ", e.toString());
-                reject(e);
+                app.listen(configurations.server.port, configurations.server.host, function () {
+                    console.log(`Desktop-CGI-Express Bridge: index.js: Server listening at ` + configurations.server.port);
+                    resolve({ app: app, stores: stores });
+                }.bind(app));
+
+            }.bind(app)).catch(function (error) {
+                // throw new Error(error.toString());
+                console.log("Desktop-CGI-Express Bridge: index.js: Error - ", error.toString());
+                reject({ err: err });
             });
+
+            // processes(dirname, configurations, options).then(function (procs) {
+            //     console.log("DesktopCGI-Express Bridge: index.js: Started Processes ");
+            //     console.log("DesktopCGI-Express Bridge: index.js: Starting Proxies");
+            //
+            //     stores["processes"] = procs;
+            //
+            //     proxies(dirname, configurations, options).then(function (proxyapp) {
+            //
+            //         console.log("DesktopCGI-Express Bridge: index.js: Started Proxies");
+            //
+            //         stores["proxies"] = proxyapp;
+            //
+            //         if (!!configurations.app.options.assets) {
+            //             app.use('/assets', express.static(path.join(dirname, configurations.app.options.assets)))
+            //         }
+            //         if (!!configurations.app.options.views) {
+            //             app.set('views', path.join(dirname, configurations.app.options.views));
+            //         }
+            //         if (!!configurations.app.options.viewengine) {
+            //             app.set('view engine', configurations.app.options.viewengine);
+            //         }
+            //
+            //         for (let i = 0; i < proxyapp.length; i++) {
+            //             // Check this again for use / all / specific method
+            //             app.use("/" + proxyapp[i].key, proxyapp[i].value);
+            //         }
+            //
+            //         console.log("DesktopCGI-Express Bridge: index.js: Starting CGI Files Routes");
+            //
+            //         cgifiles(dirname, configurations, options).then(async function (cgifilesapp) {
+            //
+            //             console.log("DesktopCGI-Express Bridge: index.js: Started CGI Files Routes");
+            //
+            //             stores["cgifiles"] = cgifilesapp;
+            //
+            //             // Check this again for use / all / specific method
+            //             app.use("/cgi", cgifilesapp);
+            //
+            //             if (configurations.server.app === "demo") {
+            //                 let demoapp = await require("./demoapproutes")(dirname, configurations);
+            //                 app.use("/", demoapp);
+            //             } else {
+            //                 app.get("/", function (req, res, next) {
+            //                     res.redirect(configurations.server.redirect_home);
+            //                 });
+            //             }
+            //
+            //             app.all("*", function (req, res, next) {
+            //                 res.send("Desktop-CGI-Express Bridge: " + req.path + " - /* path: Testing my server");
+            //             });
+            //
+            //             app.listen(configurations.server.port, configurations.server.host, function () {
+            //                 console.log(`Desktop-CGI-Express Bridge: index.js: Server listening at ` + configurations.server.port);
+            //                 resolve({ app: app, stores: stores });
+            //             }.bind(app));
+            // 
+            //         }.bind(app)).catch(function (error) {
+            //             // throw new Error(error.toString());
+            //             console.log("Desktop-CGI-Express Bridge: index.js: Error - ", error.toString());
+            //             reject({ err: err });
+            //         });
+            // 
+            //     }.bind(app), function (err) {
+            //         // throw new Error(err.toString());
+            //         console.log("Desktop-CGI-Express Bridge: index.js: ", err.toString());
+            //         reject(err);
+            //     }).catch(function (error) {
+            //         // throw new Error(error.toString());
+            //         console.log("Desktop-CGI-Express Bridge: index.js: ", error.toString());
+            //         reject(error);
+            //     });
+            // 
+            // }).catch(function (e) {
+            //     // throw new Error(e.toString());
+            //     console.log("Desktop-CGI-Express Bridge: index.js: ", e.toString());
+            //     reject(e);
+            // });
 
         } catch (e) {
             // throw new Error(e.toString());

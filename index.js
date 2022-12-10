@@ -35,11 +35,11 @@ ipcMain.on('monitorTerm', (event, term) => {
 
 let config;
 if (ostype == "win32" || ostype === "Windows_NT") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, config_folder, '/config-win_demo.json')));
+    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-win_demo.json')));
 } else if (ostype == "linux") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, config_folder, '/config-linux_demo.json')));
+    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-linux_demo.json')));
 } else if (ostype == "mac") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, config_folder, '/config-mac_demo.json')));
+    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-mac_demo.json')));
 }
 
 let applicationConfiguration = config.app;
@@ -190,7 +190,7 @@ async function createWindow(dirname, config, options) {
     if (!!applicationConfiguration.tray && !!applicationConfiguration.trayIcon) {
         let contextMenu
         try {
-            trayIcon = new Tray(path.join(dirname, applicationConfiguration.trayIcon));
+            trayIcon = new Tray(path.join(applicationConfiguration.basePath, applicationConfiguration.trayIcon));
             contextMenu = Menu.buildFromTemplate(notes.map(addNoteToTrayMenu));
         } catch (e) {
             console.log("Desktop-CGI-Server: index.js: Error in tray icon #010 ", e.toString())
