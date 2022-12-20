@@ -10,37 +10,48 @@
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const cgijs = require("cgijs");
 const electron = require('electron');
-const { app, BrowserWindow, ipcMain, remote, screen, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, remote, screen, Notification, crashReporter } = require('electron');
 // let {getCurrentWindow, globalShortcut} = remote;
 const notifier = require('electron-notifications');
 const ut = require("./src/modules_utilities/encryption");
 let { Tray, notes, displayNoteToTray, addNoteToTrayMenu } = require("./src/native/electron_tray");
 
-let Menu = electron.Menu;
-let trayIcon = null;
-let menus = "default";
-let config_folder = "/www/configs";
+
+let configini = cgijs.utils().ini.parse(fs.readFileSync('./config.' + os.type().toString().toLowerCase() + '.ini', 'utf-8'));
+
 
 let ostype = os.type();
 let dirname = __dirname;
+
+
+let Menu = electron.Menu;
+let trayIcon = null;
+let menus = "default";
+let environment = (!!process.argv[2]) ? process.argv[2] : "development";
+let install_folder = configini[environment]["install_folder"] || path.join(dirname, "../");
+let config_file = configini[environment]["config"] || "/www/configs/config-windows_nt_demo.json";
+let config = JSON.parse(fs.readFileSync(path.join(install_folder, config_file)));
+
 
 let options = {
     "logger": (loggerFramework) => { }
 }
 
-ipcMain.on('monitorTerm', (event, term) => {
 
-});
+ipcMain.on('monitorTerm', (event, term) => { });
 
-let config;
-if (ostype == "win32" || ostype === "Windows_NT") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-win_demo.json')));
-} else if (ostype == "linux") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-linux_demo.json')));
-} else if (ostype == "mac") {
-    config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-mac_demo.json')));
-}
+
+// let config;
+// if (ostype == "win32" || ostype === "Windows_NT") {
+//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-win_demo.json')));
+// } else if (ostype == "linux") {
+//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-linux_demo.json')));
+// } else if (ostype == "mac") {
+//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-mac_demo.json')));
+// }
+
 
 let applicationConfiguration = config.app;
 // let frameworkDefinition = applicationConfiguration.framework;
@@ -50,6 +61,11 @@ let frameworkBridge = "desktopcgi-" + bridge + "-bridge";
 if (!frameworkBridge) {
     throw Error("Desktop-CGI-Server: index.js: Framework or Framework Bridge Path not provided #002");
 }
+
+
+// // https://www.electronjs.org/docs/latest/api/crash-reporter
+// crashReporter.start({ submitURL: 'https://your-domain.com/url-to-submit' })
+
 
 /** 
  * 

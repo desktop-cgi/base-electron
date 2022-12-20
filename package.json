@@ -400,8 +400,13 @@
     "package-all": "electron-packager . desktopcgi-demo --overwrite --asar --all --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds",
     "package": "electron-packager . desktopcgi-demo --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
   },
+  "exports": {
+    "require": "./index.js",
+    "import": "./index.mjs"
+  },
   "dependencies": {
-    "cgijs": "^1.1.0",
+    "cgijs": "^1.2.0",
+    "concurrency.js": "^0.0.23-beta",
     "crypto-js": "^4.1.1",
     "express": "^4.18.1",
     "log4js": "^6.5.2",

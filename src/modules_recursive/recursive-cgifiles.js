@@ -6,30 +6,25 @@ const path = require("path");
 const url = require("url");
 let cUtils = cgijs.utils();
 
-module.exports = (dirname,  configurations, options, data={}) => {
+module.exports = (dirname, configurations, options, data = {}) => {
     let pr = new Promise(function (resolve, reject) {
         console.log("DesktopCGI-Express Bridge: recursive-cgifiles.js: Starting CGI Files ");
         try {
 
             function response(type, exeOptions) {
-                let cgi = cgijs.init();
-                return function (req, res, next) {
-                    let requestObject = {
-                        url: url.parse(req.originalUrl),
-                        originalUrl: req.originalUrl,
-                        query: req.url.query,
-                        method: req.method,
-                        body: req.body,
-                        ip: req.ip,
-                        headers: req.headers
-                    }
+                return function (req, res) {
+                    let fileExecute = cgijs.cgi();
 
-                    cgi.serve(type, requestObject, exeOptions).then(function (result) {
-                        result.statusCode = (!result.statusCode) ? 200 : result.statusCode;
-                        res.status(result.statusCode).send(result.response);
-                    }.bind(res)).catch(function (e) {
-                        e.statusCode = (!e.statusCode) ? 500 : e.statusCode;
-                        res.status(e.statusCode).send(e.response);
+                    return fileExecute.serve(type, req, exeOptions, (e, o, se) => {
+                        req = req, res = res;
+                        if (!!o) {
+                            (!!exeOptions.script.transformResponse) ? res.set((!!o.headers) ? o.headers : { ...exeOptions.script.headers }) : null;
+                            res.status((!o.statusCode) ? 200 : o.statusCode).send((!o.response) ? o : o.response);
+                        } else if (!!se) {
+                            res.status((!e.statusCode) ? 500 : e.statusCode).send(se.toString());
+                        } else if (!!e) {
+                            res.status((!se.statusCode) ? 500 : se.statusCode).send(e.toString());
+                        }
                     });
                 };
             }
@@ -39,23 +34,19 @@ module.exports = (dirname,  configurations, options, data={}) => {
 
             for (let i = 0; i < cgifiles.length; i++) {
                 let inst = configurations.cgifiles[cgifiles[i]];
+                let lang_type_config = configurations[inst.lang_type];
+                let server = (!!inst.script.server) ? { ...inst.script.server } : (!!lang_type_config.script.server) ? { ...lang_type_config.script.server } : {}
                 // Check this again for use / all / specific method
                 app.use(
                     inst.path,
-                    response(
-                        inst.script_lang_type,
-                        {
-                            web_root_folder: path.join(dirname, inst.script_web_root_folder),
-                            bin: path.join(dirname, (typeof inst.embed_bin === "string") ? inst.embed_bin : inst.embed_bin.bin_path),
-                            config_path: (!!inst.embed_config.file) ? inst.embed_config.file : inst.embed_config.file,
-                            host: inst.script_server.host,
-                            port: inst.script_server.port,
-                            cmd_options: inst.script_cmd_options
-                        }
-                    )
+                    response(inst.lang_type, {
+                        ...inst,
+                        embed: (!!inst.embed) ? { ...inst.embed } : { ...lang_type_config.embed },
+                        script: (!!inst.script) ? { ...inst.script, server: { ...server } } : { ...lang_type_config.script, server: { ...server } }
+                    })
                 );
             }
-            
+
             console.log("Desktop-CGI-Express Bridge: recursive-cgifiles.js: Started files recursive ");
             resolve(app);
         } catch (e) {
