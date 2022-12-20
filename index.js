@@ -18,22 +18,18 @@ const notifier = require('electron-notifications');
 const ut = require("./src/modules_utilities/encryption");
 let { Tray, notes, displayNoteToTray, addNoteToTrayMenu } = require("./src/native/electron_tray");
 
-
-let configini = cgijs.utils().ini.parse(fs.readFileSync('./config.' + os.type().toLowerCase() + '.ini', 'utf-8'));
-
-
 let ostype = os.type();
 let dirname = __dirname;
 
+let configini = cgijs.utils().ini.parse(fs.readFileSync('./config.' + ostype.toLowerCase() + '.ini', 'utf-8'));
 
 let Menu = electron.Menu;
 let trayIcon = null;
 let menus = "default";
 let environment = (!!process.argv.includes("-e")) ? process.argv[process.argv.indexOf("-e") + 1] : "development";
 let install_folder = configini[environment]["install_folder"] || path.join(dirname, "../");
-let config_file = configini[environment]["config"] || "/www/configs/config-" + os.type().toLowerCase() + "_demo.json";
+let config_file = configini[environment]["config"] || "/www/configs/config-" + ostype.toLowerCase() + "_demo.json";
 let config = JSON.parse(fs.readFileSync(path.join(install_folder, config_file)));
-
 
 let options = {
     "logger": (loggerFramework) => { }
