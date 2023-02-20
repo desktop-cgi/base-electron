@@ -137,8 +137,11 @@ Check file - [.todo](https://github.com/desktop-cgi/desktop-cgi/blob/main/dev_su
 
 # References
 
+
 [Electron Application Distribution](https://www.electronjs.org/docs/tutorial/application-distribution)
+
 [Wails Application Distribution](https://wails.io/docs/gettingstarted/building)
+
 [Tauri Application Distribution](https://tauri.app/v1/guides/distribution/publishing)
 
 
