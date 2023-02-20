@@ -146,7 +146,7 @@ The MIT License (MIT) - See [LICENSE](./LICENSE) for further details
 
 
 Copyright © 2019 - till library works:
-    Ganesh B <ganeshsurfs@gmail.com>
+    Ganesh B <desktopcgi@gmail.com>
 
 The project is intended to be maintained seriously.
 <!-- Consider latest version feature: https://api.github.com/repos/DEDAjs/deda-service-manager/releases/latest -->
