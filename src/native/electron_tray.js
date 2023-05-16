@@ -12,6 +12,8 @@ const notes = [
     { title: 'Insider invites', contents: 'Test names' }
 ];
 
+// const contextMenu = Menu.buildFromTemplate(notes);
+
 function displayNoteToTray(note, win) {
     // win.webContents.send('displayNote', note);
 }
@@ -20,7 +22,7 @@ function addNoteToTrayMenu(note) {
     return {
         label: note.title,
         type: 'normal',
-        click: (win) => { displayNoteToTray(note, win); }
+        click: (win) => { displayNoteToTray(contextMenu, win); }
     };
 }
 

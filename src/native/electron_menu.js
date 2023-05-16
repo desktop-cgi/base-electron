@@ -154,7 +154,16 @@ if (process.platform === 'darwin') {
 }
 
 const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
+Menu.setApplicationMenu(menu);
+
+// const contextMenu = Menu.buildFromTemplate([
+//     { label: 'Item1', type: 'radio' },
+//     { label: 'Item2', type: 'radio' },
+//     { label: 'Item3', type: 'radio', checked: true },
+//     { label: 'Item4', type: 'radio' }
+//   ])
+
+// tray.setContextMenu(require("./electron_tray").contextMenu)
 
 module.exports = Menu
 

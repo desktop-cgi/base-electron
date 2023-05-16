@@ -1,34 +1,29 @@
-// /** 
-//  * 
-//  * Desktop-CGI to Initiate Electron or Different Desktop-CGI Framework
-//  * 
-//  * 
-//  */
-
-'use strict';
 
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
 const cgijs = require("cgijs");
+
 // const electron = require('electron');
 const { app, BrowserWindow, Menu, ipcMain, remote, screen, Notification, crashReporter } = require('electron');
 // let {getCurrentWindow, globalShortcut} = remote;
 const notifier = require('electron-notifications');
 const ut = require("./src/utils/encryption");
+
 let { Tray, notes, displayNoteToTray, addNoteToTrayMenu } = require("./src/native/electron_tray");
 
 let ostype = os.type();
 let dirname = __dirname;
-let tray;
-let trayIcon = null;
 
 let configini = cgijs.utils().ini.parse(fs.readFileSync('./config.' + ostype.toLowerCase() + '.ini', 'utf-8'));
+
+let trayIcon = null;
 let environment = (!!process.argv.includes("-e")) ? process.argv[process.argv.indexOf("-e") + 1] : "development";
 let install_folder = configini[environment]["install_folder"] || path.join(dirname, "../");
 let config_file = configini[environment]["config"] || "/www/configs/config-" + ostype.toLowerCase() + "_demo.json";
 
 let config = JSON.parse(fs.readFileSync(path.join(install_folder, config_file)));
+let tray;
 
 let options = {
     "logger": (loggerFramework) => { }
@@ -42,15 +37,6 @@ let options = {
 //     win.setIgnoreMouseEvents(...args)
 // })
 
-// let config;
-// if (ostype == "win32" || ostype === "Windows_NT") {
-//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-win_demo.json')));
-// } else if (ostype == "linux") {
-//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-linux_demo.json')));
-// } else if (ostype == "mac") {
-//     config = JSON.parse(fs.readFileSync(path.join(dirname, "../", config_folder, '/config-mac_demo.json')));
-// }
-
 
 let applicationConfiguration = config.app;
 // let frameworkDefinition = applicationConfiguration.framework;
@@ -61,19 +47,6 @@ if (!frameworkBridge) {
     throw Error("Desktop-CGI-Server: index.js: Framework or Framework Bridge Path not provided #002");
 }
 
-
-// // https://www.electronjs.org/docs/latest/api/crash-reporter
-// crashReporter.start({ submitURL: 'https://your-domain.com/url-to-submit' })
-
-
-/** 
- * 
-    // // Commenting the Isolation version
-    // // let app = require("desktopcgi-" + frameworkDefinition).electron(dirname, frameworkObject, frameworkBridge, menus, config, options);
-    // // const electron = frameworkObject;
-    // // let { app, BrowserWindow, remote, screen } = frameworkObject;
- * 
-*/
 
 // // USAGE:
 // // Allows Render Process ReUse in Electron
@@ -115,13 +88,6 @@ function showNotification(title, body) {
     new Notification({ title: title, body: body }).show();
 }
 
-// https://www.electronjs.org/docs/latest/tutorial/windows-taskbar
-// Apply taskbar customization: PENDING
-
-// https://www.electronjs.org/docs/latest/tutorial/spellchecker
-// Apply spell checkers
-
-// const gotTheLock = app.requestSingleInstanceLock();
 
 /**
  *
@@ -140,8 +106,8 @@ async function createWindow(dirname, config, options) {
 
     console.log("Desktop-CGI-Server: index.js: ready Event invoked #001");
 
-    let menus = "default";
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    let menus = "default";
     // let frameworkObject = require((!!frameworkDefinition) ? frameworkDefinition : "electron");
     menus = (!!applicationConfiguration.menus) ? path.join(dirname, applicationConfiguration.menus) : menus;
 
@@ -152,11 +118,11 @@ async function createWindow(dirname, config, options) {
     // TODO: Separate the desktop-cgi-application's electron (desktopcgi-electron) and express (express-bridge) server
     // 
     // let result = await require(frameworkBridge)(dirname, config, options);
-    let result = await require("./src/index")(dirname, config, options);
+    // let result = await require("./src/index")(dirname, config, options);
 
-    console.log(result);
+    // console.log(result);
 
-    const win = new BrowserWindow({
+    let win = new BrowserWindow({
         // fullscreen: true,
         // fullscreenable: false,
         // fullscreenWindowTitle: false,
@@ -166,8 +132,8 @@ async function createWindow(dirname, config, options) {
         backgroundColor: '#FFF',
         show: false,
         titleBarStyle: 'hidden',
-        titleBarOverlay: true,
-        transparent: false,
+        // titleBarOverlay: true,
+        // transparent: false,
         webPreferences: {
             // https://www.electronjs.org/docs/latest/tutorial/multithreading
             // contextIsolation: false,
@@ -187,17 +153,21 @@ async function createWindow(dirname, config, options) {
     } else if (config.server.loader === "server") {
         console.log("Desktop-CGI-Server: index.js: Desktop-CGI App loading server at protocol:host:port: #004 ", config.server.protocol, config.server.host, config.server.port);
         win.loadURL('http://' + config.server.host + ':' + config.server.port);
+
     } else {
         console.log("Desktop-CGI-Server: index.js: Desktop-CGI App loading server at protocol:host:port: #005 ", config.server.protocol, config.server.host, config.server.port);
         win.loadURL('http://' + config.server.host + ':' + config.server.port);
+
     }
+
+    win.webContents.setFrameRate(60);
 
     console.log("Desktop-CGI-Server: index.js: Desktop-CGI App Menus loading : #006");
 
     if (menus === "default" || menus === null || menus === undefined) {
         require("./src/native/electron_menu");
     } else {
-        require(menus);
+        require(path.join(menus));
     }
 
     win.on('closed', function (win) {
@@ -220,7 +190,7 @@ async function createWindow(dirname, config, options) {
     // https://www.electronjs.org/docs/api/web-contents
 
     if (!!applicationConfiguration.tray && !!applicationConfiguration.trayIcon) {
-        let contextMenu
+        let contextMenu;
         try {
             trayIcon = new Tray(path.join(applicationConfiguration.basePath, applicationConfiguration.trayIcon));
             contextMenu = Menu.buildFromTemplate(notes.map(addNoteToTrayMenu));
@@ -243,12 +213,12 @@ console.log("Desktop-CGI-Server: index.js: setting app paths #012");
 
 // app = createWindow();
 
-// // // // electron.app.setPath('temp', process.cwd() + applicationConfiguration.temp);
-// // // // electron.app.setPath('cache', process.cwd() + applicationConfiguration.cache);
-// // // // electron.app.setPath('downloads', process.cwd() + applicationConfiguration.downloads);
-// // // // electron.app.setPath('userData', process.cwd() + applicationConfiguration.userData);
-// // // // electron.app.setPath('logs', process.cwd() + applicationConfiguration.logs);
-// // // // electron.app.setPath('recent', process.cwd() + applicationConfiguration.recent);
+// // electron.app.setPath('temp', process.cwd() + applicationConfiguration.temp);
+// // electron.app.setPath('cache', process.cwd() + applicationConfiguration.cache);
+// // electron.app.setPath('downloads', process.cwd() + applicationConfiguration.downloads);
+// // electron.app.setPath('userData', process.cwd() + applicationConfiguration.userData);
+// // electron.app.setPath('logs', process.cwd() + applicationConfiguration.logs);
+// // electron.app.setPath('recent', process.cwd() + applicationConfiguration.recent);
 
 app.setPath('temp', path.join(dirname, applicationConfiguration.temp));
 app.setPath('cache', path.join(dirname, applicationConfiguration.cache));
@@ -258,8 +228,8 @@ app.setPath('logs', path.join(dirname, applicationConfiguration.logs));
 app.setPath('recent', path.join(dirname, applicationConfiguration.recent));
 
 
-// // Failed to set path error
-// // electron.app.setPath('crashDump', applicationConfiguration.crashDump)
+// Failed to set path error
+// electron.app.setPath('crashDump', applicationConfiguration.crashDump)
 // electron.app.setPath('appData', process.cwd() + applicationConfiguration.appData);
 
 
@@ -280,19 +250,19 @@ app.setPath('appData', path.join(dirname, applicationConfiguration.appData));
 // //   "aix", "android", "darwin", "freebsd", "linux", "openbsd", "sunos", and "win32"
 // // 
 // // if (process.platform === 'win32' || process.platform === '') {
-// //     app.setPath('appData', '%APPDATA%')
+// //     electron.app.setPath('appData', '%APPDATA%')
 // // } else if (process.platform === 'darwin') {
-// //     app.setPath('appData', '$XDG_CONFIG_HOME')
+// //     electron.app.setPath('appData', '$XDG_CONFIG_HOME')
 // // } else if (process.platform === 'linux') {
-// //     app.setPath('appData', '~/Library/Application Support')
+// //     electron.app.setPath('appData', '~/Library/Application Support')
 // // }
 // // 
 
 app.whenReady().then(function () {
     console.log("Desktop-CGI-Server: index.js: app.whenReady Event invoked #013");
-    createWindow(dirname, config, options);
+    createWindow(dirname, config, options).catch((err) => console.log(err));
 
-    const icon = nativeImage.createFromPath('path/to/asset.png');
+    // const icon = nativeImage.createFromPath('path/to/asset.png');
 
     app.on('activate', () => {
         console.log("Desktop-CGI-Server: index.js: app.activate Event invoked #014");
@@ -310,3 +280,4 @@ app.on('window-all-closed', () => {
         app = {};
     }
 });
+

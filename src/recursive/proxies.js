@@ -9,7 +9,6 @@ let cUtils = cgijs.utils();
 
 module.exports = (dirname, configurations, options, data = {}) => {
     let pr = new Promise(function (resolve, reject) {
-
         console.log("DesktopCGI-Express Bridge: recursive-proxies.js: Starting Proxies ");
 
         let configs = configurations.proxies;
@@ -20,7 +19,6 @@ module.exports = (dirname, configurations, options, data = {}) => {
 
         try {
             for (let i = 0; i < confLen; i++) {
-
                 let proxyType = configs[configKeys[i]].type;
                 if (proxyType === "http" || proxyType === "https" || proxyType === "web") {
                     app.push({

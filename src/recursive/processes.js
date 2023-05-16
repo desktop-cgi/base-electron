@@ -23,7 +23,7 @@ module.exports = (dirname, configurations, options, data = {}) => {
                 let process;
                 let name = procs[i];
                 let processConf = configurations.processes[name];
-                let base = require("../modules_processes").base;
+                let base = require("../processes").base;
 
                 // STEP 2: Start the process as a seperate thread
                 if (!!processConf.path) {

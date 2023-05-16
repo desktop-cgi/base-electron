@@ -390,7 +390,7 @@
     "postinstall": "electron-builder install-app-deps",
     "setup-expressbridge": "cd ./server/express-bridge && npm install && npm link",
     "test": "mocha --reporter spec --recursive --config ./mocha.test.config.js",
-    "electron": "electron --trace-warnings . -e development",
+    "electron": "electron . --trace-warnings",
     "electronbuilder": "electron-builder build -mwl",
     "electronbuilder-deps": "electron-builder install-app-deps",
     "electronbuilder-wincert": "electron-builder create-self-signed-cert",

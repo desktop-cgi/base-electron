@@ -9,12 +9,11 @@ let cUtils = cgijs.utils();
 module.exports = (dirname, configurations, options, data = {}) => {
     console.log("DesktopCGI-Express Bridge: recursive-cgifiles.js: Starting CGI Files ");
     try {
-
         function response(type, exeOptions) {
             return function (req, res) {
-                let fileExecute = cgijs.cgi();
+                let exec = cgijs.cgi();
 
-                return fileExecute.serve(type, req, exeOptions, (e, o, se) => {
+                return exec.serve(type, req, exeOptions, (e, o, se) => {
                     req = req, res = res;
                     if (!!o) {
                         (!!exeOptions.script.transformResponse) ? res.set((!!o.headers) ? o.headers : { ...exeOptions.script.headers }) : null;
