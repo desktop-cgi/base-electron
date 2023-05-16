@@ -28,6 +28,7 @@ module.exports = function (name, config) {
                     config["cookieDomainRewrite"] = config.options.target.host + ":" + config.options.target.port.toString();
                 }
             }
+
             if (!cKeys.includes("ws")) { config["ws"] = false; }
 
             let setup = handler.proxy.setup(name, config, {});

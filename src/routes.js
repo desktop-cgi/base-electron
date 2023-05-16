@@ -12,7 +12,7 @@ let cUtils = cgijs.utils();
 
 
 module.exports = (dirname, configurations, options) => {
-    let pr = new Promise(function (resolve, reject) {
+    let prom = new Promise(function (resolve, reject) {
         try {
             let app = express();
 
@@ -76,6 +76,6 @@ module.exports = (dirname, configurations, options) => {
         }
     });
 
-    return pr;
+    return prom;
 }
 

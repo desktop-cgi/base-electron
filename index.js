@@ -29,13 +29,16 @@ let menus = "default";
 let environment = (!!process.argv.includes("-e")) ? process.argv[process.argv.indexOf("-e") + 1] : "development";
 let install_folder = configini[environment]["install_folder"] || path.join(dirname, "../");
 let config_file = configini[environment]["config"] || "/www/configs/config-" + ostype.toLowerCase() + "_demo.json";
+
 let config = JSON.parse(fs.readFileSync(path.join(install_folder, config_file)));
+
 
 let options = {
     "logger": (loggerFramework) => { }
 }
 
-ipcMain.on('monitorTerm', (event, term) => { });
+// // Incorporate this due to UNDEFINED STATUS
+// ipcMain.on('monitorTerm', (event, term) => { });
 
 
 // let config;
@@ -143,6 +146,8 @@ async function createWindow(dirname, config, options) {
     // let result = await require(frameworkBridge)(dirname, config, options);
     let result = await require("./src/index")(dirname, config, options);
 
+    console.log(result);
+
     const win = new electron.BrowserWindow({
         // fullscreen: true,
         // fullscreenable: false,
@@ -155,7 +160,7 @@ async function createWindow(dirname, config, options) {
         webPreferences: {
             // https://www.electronjs.org/docs/latest/tutorial/multithreading
             // nodeIntegrationInWorker: true,
-            preload: path.join(dirname, 'preload.js')
+            preload: path.join(dirname, "src", 'preload.js')
         }
     });
 
@@ -173,6 +178,7 @@ async function createWindow(dirname, config, options) {
     }
 
     console.log("Desktop-CGI-Server: index.js: Desktop-CGI App Menus loading : #006");
+
     if (menus === "default") {
         Menu = require("./src/native/electron_menu");
     } else {
@@ -215,68 +221,70 @@ async function createWindow(dirname, config, options) {
         displayNoteToTray(notes[0], win);
     });
 
+
+    // // electron.app.setPath('temp', process.cwd() + applicationConfiguration.temp);
+    // // electron.app.setPath('cache', process.cwd() + applicationConfiguration.cache);
+    // // electron.app.setPath('downloads', process.cwd() + applicationConfiguration.downloads);
+    // // electron.app.setPath('userData', process.cwd() + applicationConfiguration.userData);
+    // // electron.app.setPath('logs', process.cwd() + applicationConfiguration.logs);
+    // // electron.app.setPath('recent', process.cwd() + applicationConfiguration.recent);
+
+    electron.app.setPath('temp', path.join(dirname, applicationConfiguration.temp));
+    electron.app.setPath('cache', path.join(dirname, applicationConfiguration.cache));
+    electron.app.setPath('downloads', path.join(dirname, applicationConfiguration.downloads));
+    electron.app.setPath('userData', path.join(dirname, applicationConfiguration.userData));
+    electron.app.setPath('logs', path.join(dirname, applicationConfiguration.logs));
+    electron.app.setPath('recent', path.join(dirname, applicationConfiguration.recent));
+
+    // // Failed to set path error
+    // // electron.app.setPath('crashDump', applicationConfiguration.crashDump)
+    // // electron.app.setPath('appData', process.cwd() + applicationConfiguration.appData);
+
+    // // Failed to set path error
+    // // electron.app.setPath('crashDump', path.join(dirname, applicationConfiguration.crashDump))
+    electron.app.setPath('appData', path.join(dirname, applicationConfiguration.appData));
+
+    // // 
+    // // Alternatively, use following AppData path based on OS
+    // // aix, darwin, freebsd, linux, openbsd, sunos, win32
+    // // 
+    // // os.type 
+    // //   "Darwin" for MacOS, "Linux" for Linux and "Windows_NT" for windows
+    // // os.arch
+    // //   "x32", "x64", "arm", "arm64", "s390", "s390x", "mipsel", "ia32", "mips", "ppc" and "ppc64".
+    // // os.platform
+    // //   "aix", "android", "darwin", "freebsd", "linux", "openbsd", "sunos", and "win32"
+    // // 
+    // // if (process.platform === 'win32' || process.platform === '') {
+    // //     electron.app.setPath('appData', '%APPDATA%')
+    // // } else if (process.platform === 'darwin') {
+    // //     electron.app.setPath('appData', '$XDG_CONFIG_HOME')
+    // // } else if (process.platform === 'linux') {
+    // //     electron.app.setPath('appData', '~/Library/Application Support')
+    // // }
+    // // 
+
+    electron.app.whenReady().then(function () {
+        console.log("Desktop-CGI-Server: index.js: app.whenReady Event invoked #013");
+        createWindow(dirname, config, options);
+
+        electron.app.on('activate', () => {
+            console.log("Desktop-CGI-Server: index.js: app.activate Event invoked #014");
+            if (win === null) {
+                if (electron.BrowserWindow.getAllWindows().length === 0) createWindow();
+            }
+        });
+    }.bind(null, config, options));
+
+    electron.app.on('window-all-closed', () => {
+        console.log("Desktop-CGI-Server: index.js: app.window-all-closed Event invoked #015");
+        if (process.platform !== 'darwin') {
+            electron.app.quit();
+            electron.apps = {};
+        }
+    });
+
+
 }
 
 console.log("Desktop-CGI-Server: index.js: setting app paths #012");
-
-// // electron.app.setPath('temp', process.cwd() + applicationConfiguration.temp);
-// // electron.app.setPath('cache', process.cwd() + applicationConfiguration.cache);
-// // electron.app.setPath('downloads', process.cwd() + applicationConfiguration.downloads);
-// // electron.app.setPath('userData', process.cwd() + applicationConfiguration.userData);
-// // electron.app.setPath('logs', process.cwd() + applicationConfiguration.logs);
-// // electron.app.setPath('recent', process.cwd() + applicationConfiguration.recent);
-
-electron.app.setPath('temp', path.join(dirname, applicationConfiguration.temp));
-electron.app.setPath('cache', path.join(dirname, applicationConfiguration.cache));
-electron.app.setPath('downloads', path.join(dirname, applicationConfiguration.downloads));
-electron.app.setPath('userData', path.join(dirname, applicationConfiguration.userData));
-electron.app.setPath('logs', path.join(dirname, applicationConfiguration.logs));
-electron.app.setPath('recent', path.join(dirname, applicationConfiguration.recent));
-
-// // Failed to set path error
-// // electron.app.setPath('crashDump', applicationConfiguration.crashDump)
-// // electron.app.setPath('appData', process.cwd() + applicationConfiguration.appData);
-
-// // Failed to set path error
-// // electron.app.setPath('crashDump', path.join(dirname, applicationConfiguration.crashDump))
-electron.app.setPath('appData', path.join(dirname, applicationConfiguration.appData));
-
-// // 
-// // Alternatively, use following AppData path based on OS
-// // aix, darwin, freebsd, linux, openbsd, sunos, win32
-// // 
-// // os.type 
-// //   "Darwin" for MacOS, "Linux" for Linux and "Windows_NT" for windows
-// // os.arch
-// //   "x32", "x64", "arm", "arm64", "s390", "s390x", "mipsel", "ia32", "mips", "ppc" and "ppc64".
-// // os.platform
-// //   "aix", "android", "darwin", "freebsd", "linux", "openbsd", "sunos", and "win32"
-// // 
-// // if (process.platform === 'win32' || process.platform === '') {
-// //     electron.app.setPath('appData', '%APPDATA%')
-// // } else if (process.platform === 'darwin') {
-// //     electron.app.setPath('appData', '$XDG_CONFIG_HOME')
-// // } else if (process.platform === 'linux') {
-// //     electron.app.setPath('appData', '~/Library/Application Support')
-// // }
-// // 
-
-electron.app.whenReady().then(function () {
-    console.log("Desktop-CGI-Server: index.js: app.whenReady Event invoked #013");
-    createWindow(dirname, config, options);
-
-    electron.app.on('activate', () => {
-        console.log("Desktop-CGI-Server: index.js: app.activate Event invoked #014");
-        if (win === null) {
-            if (electron.BrowserWindow.getAllWindows().length === 0) createWindow();
-        }
-    });
-}.bind(null, config, options));
-
-electron.app.on('window-all-closed', () => {
-    console.log("Desktop-CGI-Server: index.js: app.window-all-closed Event invoked #015");
-    if (process.platform !== 'darwin') {
-        electron.app.quit();
-        electron.apps = {};
-    }
-});
