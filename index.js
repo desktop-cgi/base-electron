@@ -12,7 +12,7 @@ const fs = require("fs");
 const os = require("os");
 const cgijs = require("cgijs");
 // const electron = require('electron');
-const { app, BrowserWindow, Menu, ipcMain, remote, screen, Notification, crashReporter } = require('electron');
+const { app, BrowserWindow, Menu, screen, Notification, ipcMain, remote, crashReporter } = require('electron');
 // let {getCurrentWindow, globalShortcut} = remote;
 const notifier = require('electron-notifications');
 const ut = require("./src/utils/encryption");
@@ -20,8 +20,8 @@ let { Tray, notes, displayNoteToTray, addNoteToTrayMenu } = require("./src/nativ
 
 let ostype = os.type();
 let dirname = __dirname;
-let tray;
 let trayIcon = null;
+let win, tray;
 
 let configini = cgijs.utils().ini.parse(fs.readFileSync('./config.' + ostype.toLowerCase() + '.ini', 'utf-8'));
 let environment = (!!process.argv.includes("-e")) ? process.argv[process.argv.indexOf("-e") + 1] : "development";
@@ -40,7 +40,14 @@ let options = {
 // ipcMain.on('set-ignore-mouse-events', (event, ...args) => {
 //     const win = BrowserWindow.fromWebContents(event.sender)
 //     win.setIgnoreMouseEvents(...args)
-// })
+// });
+// ipcMain.on('app/minimize', () => {
+//     win.minimize();
+// });
+// ipcMain.on('app/close', () => {
+//     app.quit();
+// });
+
 
 // let config;
 // if (ostype == "win32" || ostype === "Windows_NT") {
@@ -156,7 +163,7 @@ async function createWindow(dirname, config, options) {
 
     console.log(result);
 
-    const win = new BrowserWindow({
+    let win = new BrowserWindow({
         // fullscreen: true,
         // fullscreenable: false,
         // fullscreenWindowTitle: false,
@@ -236,6 +243,7 @@ async function createWindow(dirname, config, options) {
         displayNoteToTray(notes[0], win);
     });
 
+    return win;
 }
 
 
@@ -290,7 +298,7 @@ app.setPath('appData', path.join(dirname, applicationConfiguration.appData));
 
 app.whenReady().then(function () {
     console.log("Desktop-CGI-Server: index.js: app.whenReady Event invoked #013");
-    createWindow(dirname, config, options);
+    win = createWindow(dirname, config, options);
 
     const icon = nativeImage.createFromPath('path/to/asset.png');
 
@@ -300,7 +308,7 @@ app.whenReady().then(function () {
             if (BrowserWindow.getAllWindows().length === 0) createWindow(dirname, config, options);
         }
     });
-}.bind(null, config, options));
+}.bind(null, config, options, win));
 
 app.on('window-all-closed', () => {
     console.log("Desktop-CGI-Server: index.js: app.window-all-closed Event invoked #015");
